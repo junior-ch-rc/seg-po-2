@@ -29,11 +29,7 @@ public class BankImpl {
     
     // Criar conta corrente
     public int createAccount(ContaBancaria c) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO accounts (cpf, nome, endereco, nascimento, telefone, senha) VALUES (?, ?, ?, ?, ?, ?)");
-        stmt.setString(1, c.getCpf());
-        stmt.setString(2, c.getNome());
-        stmt.setString(3, c.getEndereco());
-        
+    	
         // conversão de String para Date
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         java.util.Date parsed = null;
@@ -44,18 +40,14 @@ public class BankImpl {
 			e.printStackTrace();
 		}
         Date nascimento = new Date(parsed.getTime());
-        stmt.setDate(4, nascimento);
         
-        stmt.setString(5, c.getTelefone());
-        stmt.setString(6, MeuHash.resumo(c.getSenha().getBytes(), "SHA3-256"));
-        stmt.executeUpdate();
-        
-
-    	ResultSet generatedKeys = stmt.getGeneratedKeys();
+        Statement stmt = conn.createStatement();
+        stmt.executeUpdate("INSERT INTO accounts (cpf, nome, endereco, nascimento, telefone, senha) VALUES ('" + c.getCpf() + "', '" + c.getNome() + "', '" + c.getEndereco() + "', '" + nascimento + "', '" + c.getTelefone() + "', '" + MeuHash.resumo(c.getSenha().getBytes(), "SHA3-256") + "')", Statement.RETURN_GENERATED_KEYS);
+        ResultSet generatedKeys = stmt.getGeneratedKeys();
     	
         if (generatedKeys.next()) {
-            int idGerado = generatedKeys.getInt(1);
-            return idGerado;
+            long idGerado = generatedKeys.getLong(1);
+            return (int) idGerado;
         } else {
         	return -1;
         }
