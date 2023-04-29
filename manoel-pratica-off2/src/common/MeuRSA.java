@@ -1,6 +1,8 @@
 package common;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class MeuRSA {
@@ -19,19 +21,19 @@ public class MeuRSA {
 
 		// Segundo passo - Gerar n
 		BigInteger n = p.multiply(q);
-		System.out.println("n: " + n);
+		// System.out.println("n: " + n);
 		
 		// Terceiro passo - Calcular phi
 		BigInteger phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE)); // (p - 1) * (q - 1)
-		System.out.println("phi:" + phi);
+		// System.out.println("phi:" + phi);
 		
 		// Quarto passo - Gerar e
 		BigInteger e = calcularE(phi);
-		System.out.println("e: " + e);
+		// System.out.println("e: " + e);
 		
 		// Quinto passo - Gerar d
 		BigInteger d = calcularD(e, phi);
-		System.out.println("d: " + d);
+		// System.out.println("d: " + d);
 		
 		BigInteger[] result = { e, d, n };
 		
@@ -72,6 +74,37 @@ public class MeuRSA {
             resultados = new BigInteger[] { temp[1], temp[0].subtract(a.divide(b).multiply(temp[1])) };
         }
         return resultados;
+    }
+
+    public static BigInteger cifrarByte(byte b, BigInteger chave, BigInteger n) {
+    	return BigInteger.valueOf(b + 256).modPow(chave, n);
+    }
+    
+    public static List<BigInteger> cifrarBytes(byte[] bs, BigInteger chave, BigInteger n) {
+    	
+    	List<BigInteger> result = new ArrayList<BigInteger>();
+    	
+    	for (byte b : bs) {
+    		result.add(cifrarByte(b, chave, n));
+    	}
+    	
+    	return result;
+    }
+    
+    
+    public static byte decifrarByte(BigInteger b, BigInteger chave, BigInteger n) {
+    	return (byte) (b.modPow(chave, n).byteValue() - 256);
+    }
+    
+    public static byte[] decifrarBytes(List<BigInteger> bs, BigInteger chave, BigInteger n) {
+    	
+    	byte[] result = new byte[bs.size()];
+    	
+    	for (int i = 0; i < bs.size(); i++) {
+    		result[i] = decifrarByte(bs.get(i), chave, n);
+    	}
+    	
+    	return result;
     }
 
 }

@@ -1,16 +1,24 @@
 package servidor;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import common.ContaBancaria;
 import common.Mensagem;
+import common.MeuHash;
+import common.MeuRSA;
 
 public class Servidor {
 
@@ -41,8 +49,23 @@ public class Servidor {
 		private ObjectOutputStream saida;
 		private String clientID;
 		private BankImpl bank;
+		private BigInteger[] chaves;
+		private List<BigInteger> chavePublica; // {e, n}
+		private List<BigInteger> chavePrivada; // {d, n}
+		private List<BigInteger> chavePublicaCliente;
 		
 		public ImplServidor(Socket clientSocket) {
+			
+			chaves = MeuRSA.gerarChaves();
+			
+			chavePublica = new ArrayList<BigInteger>(); // {e, n}
+			chavePublica.add(chaves[0]);
+			chavePublica.add(chaves[2]);
+			
+			chavePrivada = new ArrayList<BigInteger>(); // {d, n}
+			chavePrivada.add(chaves[1]);
+			chavePrivada.add(chaves[2]);
+			
 			this.clientSocket = clientSocket;
 			
 			// Conexão com o banco
@@ -59,12 +82,13 @@ public class Servidor {
 			
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void run() {
 			try {
 				entrada = new ObjectInputStream(clientSocket.getInputStream());
 				
-				// Troca de chaves e consolidação da conexão
+				// Identificação do terminal cliente
 				clientID = (String) entrada.readObject();
 				System.out.println("Cliente " + clientID + " conectado.");
 				
@@ -75,8 +99,37 @@ public class Servidor {
 				String resposta = null;
 				saida = new ObjectOutputStream(clientSocket.getOutputStream());
 				
-				Mensagem m = null;
-				while ((m = (Mensagem) entrada.readObject()) != null) {
+				// Realizando troca de chaves pública - recebendo chave pública do cliente
+				chavePublicaCliente = (List<BigInteger>) entrada.readObject();
+				
+				// Realizando troca de chaves pública - enviando chave pública do servidor
+				saida.writeObject(chavePublica);
+				saida.flush();
+				
+				List<BigInteger> mensagemCifradaRecebida = null;
+				while ((mensagemCifradaRecebida = (List<BigInteger>) entrada.readObject()) != null) {
+					
+					System.out.println("Mensagem cifrada do cliente: "  + clientID + " " + mensagemCifradaRecebida);
+					
+					// Decifra e recebe bytes da mensagem
+					byte[] mensagemDecifradaBytes = MeuRSA.decifrarBytes(mensagemCifradaRecebida, chavePrivada.get(0), chavePrivada.get(1));
+					
+					// Cria um ByteArrayInputStream para ler os bytes
+					ByteArrayInputStream bais = new ByteArrayInputStream(mensagemDecifradaBytes);
+
+					// Cria um ObjectInputStream para desserializar o objeto a partir dos bytes
+					ObjectInputStream ois = new ObjectInputStream(bais);
+
+					// Lê o objeto do ObjectInputStream
+					Object obj = ois.readObject();
+
+					// Fecha o ObjectInputStream
+					ois.close();
+
+					// Cast para o tipo Mensagem
+					// Supondo que o objeto é uma instância de Mensagem
+					Mensagem m = (Mensagem) obj;
+					
 					String[] parts = m.getMensagem().split(" ");
 					
 					// Se não estiver autenticado
@@ -84,11 +137,33 @@ public class Servidor {
 						
 						switch(parts[1].charAt(0)) {
 							
-							// Autenticação
+							// Autenticação (com HMAC)
 							case '1': {
-								System.out.println(Integer.parseInt(parts[2]));
-								boolean autenticacao = bank.authenticate(Integer.parseInt(parts[2]), parts[3]);
-								resposta = autenticacao ? "1" : "0";
+								
+								// Faz a leitura do hash assinado e verifica se é autentico
+								List<BigInteger> hashAssinado = (List<BigInteger>) entrada.readObject();
+								String hashAutenticado = new String(
+										MeuRSA.decifrarBytes(hashAssinado, chavePublicaCliente.get(0), chavePublicaCliente.get(1))
+								);
+								
+								// Gera o próprio hash da mensagem
+								
+								// Transformando mensagem cifrada em bytes para gerar o hash
+			                	ByteArrayOutputStream baos2 = new ByteArrayOutputStream(); // Para armazenar os bytes
+			                    ObjectOutputStream oos2 = new ObjectOutputStream(baos2); // Para serializar o objeto em bytes
+			                    oos2.writeObject(mensagemCifradaRecebida); // Serializa o objeto
+			                    oos2.close();
+								
+			                    // Gerando o hash
+			                    String hashGerado = MeuHash.resumo(baos2.toByteArray(), "SHA-256");
+			                    
+			                    if (hashAutenticado.equals(hashGerado)) {
+			                    	boolean autenticacao = bank.authenticate(Integer.parseInt(parts[2]), parts[3]);
+			                    	resposta = autenticacao ? "Autenticado" : "Não Autenticado";			                    	
+			                    } else {
+			                    	resposta = "Requisição inválida";
+			                    }
+								
 								break;
 								
 							}
@@ -96,7 +171,7 @@ public class Servidor {
 							// Cadastro de nova conta
 							case '2': {
 								int cadastro = bank.createAccount((ContaBancaria) m.getObjeto());
-								resposta = cadastro + "";
+								resposta = "Número da conta: " + cadastro;
 								break;
 							}
 						
@@ -104,9 +179,11 @@ public class Servidor {
 						
 					}
 					
+					System.out.println("Mensagem aberta do cliente: " + clientID + " " + m.getMensagem());
 					
-					System.out.println("Mensagem do cliente: " + clientID + m.getMensagem());
-					saida.writeObject(resposta);
+					// Cifrando resposta com a chave pública do cliente
+	                List<BigInteger> respostaCifrada = MeuRSA.cifrarBytes(resposta.getBytes(StandardCharsets.UTF_8), chavePublicaCliente.get(0), chavePublicaCliente.get(1));
+					saida.writeObject(respostaCifrada);
 					saida.flush();
 						
 				}	
