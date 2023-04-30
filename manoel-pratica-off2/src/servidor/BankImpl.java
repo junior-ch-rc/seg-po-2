@@ -117,7 +117,7 @@ public class BankImpl {
         stmt.setInt(2, accountNumber);
         stmt.executeUpdate();
         
-        stmt = conn.prepareStatement("UPDATE accounts SET saldo_rendaFixa = saldo_rendaFixa + ? WHERE id = ?");
+        stmt = conn.prepareStatement("UPDATE accounts SET saldo_rendafixa = saldo_rendafixa + ? WHERE id = ?");
         stmt.setInt(1, amount);
         stmt.setInt(2, accountNumber);
         stmt.executeUpdate();
