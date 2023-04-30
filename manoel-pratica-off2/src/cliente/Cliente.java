@@ -76,8 +76,57 @@ public class Cliente {
                 
                 if (autenticado) {
                 	// Swich para autenticado
+                	String numero = "";
+                	String valor = "";
                 	
                 	switch(opc) {
+                		case 1:
+                			//Sacar
+                			System.out.println("Digite sua conta bancária: ");
+	                		numero = reader.nextLine();
+	                		System.out.println("Digite o valor para sacar: ");
+	                		valor = reader.nextLine();
+	                		
+	                		m.setMensagem("1 1 " + numero + " " + valor);
+	                		m.setObjeto(null);
+	                		
+                			break;
+                		case 2:
+                			//Depositar
+                			System.out.println("Digite sua conta bancária: ");
+	                		numero = reader.nextLine();
+	                		System.out.println("Digite o valor para depositar: ");
+	                		valor = reader.nextLine();
+	                		
+	                		m.setMensagem("1 2 " + numero + " " + valor);
+	                		m.setObjeto(null);
+                			break;
+                		case 3:
+                			//Transferir
+                			System.out.println("Digite sua conta bancária: ");
+	                		numero = reader.nextLine();
+	                		System.out.println("Digite a conta bancária que quer transferir: ");
+	                		String trasferTo = reader.nextLine();
+	                		System.out.println("Digite o valor para transferir: ");
+	                		valor = reader.nextLine();
+	                		
+	                		m.setMensagem("1 3 " + numero + " " + valor + " " + trasferTo);
+	                		m.setObjeto(null);
+                			break;
+                		case 4:
+                			//Consultar saldo
+                			System.out.println("Digite sua conta bancária: ");
+	                		numero = reader.nextLine();
+	                		
+	                		m.setMensagem("1 4 " + numero);
+	                		m.setObjeto(null);
+                			break;
+                		case 5:
+                			//Realizar investimentos
+                			System.out.println("--------------------------------------");
+                			System.out.println("1. Poupança");
+                			System.out.println("2. Renda Fixa");
+                			break;
 	                	case 6: {
 	                		m = null;
 	                		autenticado = false;

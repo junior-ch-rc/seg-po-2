@@ -178,6 +178,33 @@ public class Servidor {
 						}
 						
 					}
+					else {
+						switch(parts[1].charAt(0)) {
+							// Sacar
+							case '1':
+								break;
+								
+							//Depositar
+							case '2':
+								break;
+								
+							//Transferir
+							case '3':
+								break;
+							
+							//Consultar saldo
+							case '4':
+								break;
+							
+							//Realizar investimento poupança
+							case '5':
+								break;
+								
+							//Realizar investimento fixa
+							case '7':
+								break;
+						}
+					}
 					
 					System.out.println("Mensagem aberta do cliente: " + clientID + " " + m.getMensagem());
 					
