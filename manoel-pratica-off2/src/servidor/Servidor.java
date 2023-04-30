@@ -81,7 +81,41 @@ public class Servidor {
 			}
 			
 		}
+		
+		public String income(int valor, float rendimento) {
+			String meses3 = "Rendimento em 3 meses: ";
+			String meses6 = "Rendimento em 6 meses: ";
+			String meses12 = "Rendimento em 12 meses: ";
+	        float rendimentoTotal = 0;
+	        float valorInvestidoComJuros = valor;
 
+	        for (int i = 1; i <= 3; i++) {
+	            valorInvestidoComJuros = valorInvestidoComJuros + (valorInvestidoComJuros*rendimento);
+	            rendimentoTotal = valorInvestidoComJuros - valor;
+	        }
+	        meses3 = meses3.concat(Float.toString(rendimentoTotal)).concat("\n");
+	        rendimentoTotal = 0;
+	        valorInvestidoComJuros = valor;
+	        
+	        for (int i = 1; i <= 6; i++) {
+	            valorInvestidoComJuros = valorInvestidoComJuros + (valorInvestidoComJuros*rendimento);
+	            rendimentoTotal = valorInvestidoComJuros - valor;
+	        }
+	        
+	        meses6 = meses6.concat(Float.toString(rendimentoTotal)).concat("\n");
+	        rendimentoTotal = 0;
+	        valorInvestidoComJuros = valor;
+	        
+	        for (int i = 1; i <= 12; i++) {
+	            valorInvestidoComJuros = valorInvestidoComJuros + (valorInvestidoComJuros*rendimento);
+	            rendimentoTotal = valorInvestidoComJuros - valor;
+	        }
+	        
+	        meses12 = meses12.concat(Float.toString(rendimentoTotal)).concat("\n");
+
+	        return meses3 + meses6 + meses12;
+	    }
+		
 		@SuppressWarnings("unchecked")
 		@Override
 		public void run() {
@@ -182,26 +216,35 @@ public class Servidor {
 						switch(parts[1].charAt(0)) {
 							// Sacar
 							case '1':
+								bank.withdraw(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
 								break;
 								
 							//Depositar
 							case '2':
+								bank.deposit(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
 								break;
 								
 							//Transferir
 							case '3':
+								bank.transfer(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), Integer.parseInt(parts[4]));
 								break;
 							
 							//Consultar saldo
 							case '4':
+								int valor = bank.getBalance(Integer.parseInt(parts[2]));
+								resposta = "Saldo na conta: " + Integer.toString(valor);
 								break;
 							
 							//Realizar investimento poupança
 							case '5':
+								int poupanca = bank.investSavings(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+								resposta = this.income(poupanca, 0.05f);
 								break;
 								
 							//Realizar investimento fixa
 							case '7':
+								int rendaFixa = bank.investFixedIncome(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+								resposta = this.income(rendaFixa, 0.15f);
 								break;
 						}
 					}
@@ -247,4 +290,5 @@ public class Servidor {
 		}
 
 	}
+	
 }

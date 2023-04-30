@@ -110,7 +110,7 @@ public class Cliente {
 	                		System.out.println("Digite o valor para transferir: ");
 	                		valor = reader.nextLine();
 	                		
-	                		m.setMensagem("1 3 " + numero + " " + valor + " " + trasferTo);
+	                		m.setMensagem("1 3 " + numero + " " + trasferTo + " " + valor);
 	                		m.setObjeto(null);
                 			break;
                 		case 4:
@@ -126,6 +126,30 @@ public class Cliente {
                 			System.out.println("--------------------------------------");
                 			System.out.println("1. Poupança");
                 			System.out.println("2. Renda Fixa");
+                			System.out.println("0. Voltar");
+                			switch(Integer.parseInt(reader.nextLine())) {
+                				case 1:
+                					System.out.println("Digite sua conta bancária: ");
+        	                		numero = reader.nextLine();
+        	                		System.out.println("Digite o valor para investir: ");
+        	                		valor = reader.nextLine();
+        	                		
+        	                		m.setMensagem("1 5 " + numero + " " + valor);
+        	                		m.setObjeto(null);
+        	                		break;
+        	                		
+                				case 2:
+                					System.out.println("Digite sua conta bancária: ");
+        	                		numero = reader.nextLine();
+        	                		System.out.println("Digite o valor para investir: ");
+        	                		valor = reader.nextLine();
+        	                		
+        	                		m.setMensagem("1 7 " + numero + " " + valor);
+        	                		m.setObjeto(null);
+        	                		break;
+        	                	
+        	                	default: break;
+                			}
                 			break;
 	                	case 6: {
 	                		m = null;
