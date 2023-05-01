@@ -56,12 +56,22 @@ public class BankImpl {
     // Saque
     protected String withdraw(int accountNumber, int amount) throws SQLException {
     	try {
-    		PreparedStatement stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ? AND saldo >= ?");
-            stmt.setInt(1, amount);
-            stmt.setInt(2, accountNumber);
-            stmt.setInt(3, amount);
-            stmt.executeUpdate();
-            return "Operação bem sucedida!";
+    		PreparedStatement stmt = conn.prepareStatement("SELECT * FROM accounts WHERE id = ? AND saldo >= ?");
+    		stmt.setInt(1, accountNumber);
+    		stmt.setInt(2, amount);
+    		ResultSet rs = null;
+    		rs = stmt.executeQuery();
+    		
+    		if (rs.next()) {
+    			stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ? AND saldo >= ?");
+                stmt.setInt(1, amount);
+                stmt.setInt(2, accountNumber);
+                stmt.setInt(3, amount);
+                stmt.executeUpdate();
+                return "Operação bem sucedida!";
+    		}
+    		return "Ocorreu algum erro!";
+    		
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "Ocorreu algum erro!";
