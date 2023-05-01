@@ -54,32 +54,65 @@ public class BankImpl {
     }
     
     // Saque
-    protected void withdraw(int accountNumber, int amount) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ?");
-        stmt.setInt(1, amount);
-        stmt.setInt(2, accountNumber);
-        stmt.executeUpdate();
+    protected String withdraw(int accountNumber, int amount) throws SQLException {
+    	try {
+    		PreparedStatement stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ? AND saldo >= ?");
+            stmt.setInt(1, amount);
+            stmt.setInt(2, accountNumber);
+            stmt.setInt(3, amount);
+            stmt.executeUpdate();
+            return "Operação bem sucedida!";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Ocorreu algum erro!";
+		}
+        
     }
     
     // Depósito
-    protected void deposit(int accountNumber, int amount) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo + ? WHERE id = ?");
-        stmt.setInt(1, amount);
-        stmt.setInt(2, accountNumber);
-        stmt.executeUpdate();
+    protected String deposit(int accountNumber, int amount) throws SQLException {
+    	try {
+    		PreparedStatement stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo + ? WHERE id = ?");
+            stmt.setInt(1, amount);
+            stmt.setInt(2, accountNumber);
+            stmt.executeUpdate();
+            return "Operação bem sucedida!";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Ocorreu algum erro!";
+		}
+        
     }
     
     // Transferência
-    protected void transfer(int accountOrigin, int accountTo, int amount) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ?");
-        stmt.setInt(1, amount);
-        stmt.setInt(2, accountOrigin);
-        stmt.executeUpdate();
+    protected String transfer(int accountOrigin, int accountTo, int amount) throws SQLException {
+    	try {
+    		PreparedStatement stmt = conn.prepareStatement("SELECT * FROM accounts WHERE id = ? AND saldo >= ?");
+    		stmt.setInt(1, accountOrigin);
+    		stmt.setInt(2, amount);
+    		ResultSet rs = null;
+    		rs = stmt.executeQuery();
+    		
+    		if (rs.next()) {
+    			stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ? AND saldo >= ?");
+    			stmt.setInt(1, amount);
+    			stmt.setInt(2, accountOrigin);
+    			stmt.setInt(3, amount);
+    			stmt.executeUpdate();
+    			
+                stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo + ? WHERE id = ?");
+                stmt.setInt(1, amount);
+                stmt.setInt(2, accountTo);
+                stmt.executeUpdate();
+                return "Operação bem sucedida!";
+    		}
+    		return "Ocorreu algum erro!";
+    		
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Ocorreu algum erro!";
+		}
         
-        stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo + ? WHERE id = ?");
-        stmt.setInt(1, amount);
-        stmt.setInt(2, accountTo);
-        stmt.executeUpdate();
     }
     
     // Saldo
@@ -93,40 +126,60 @@ public class BankImpl {
     
     // Investir em Poupanca
     protected int investSavings(int accountNumber, int amount) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ?");
-        stmt.setInt(1, amount);
-        stmt.setInt(2, accountNumber);
-        stmt.executeUpdate();
+    	PreparedStatement stmt = conn.prepareStatement("SELECT * FROM accounts WHERE id = ? AND saldo >= ?");
+		stmt.setInt(1, accountNumber);
+		stmt.setInt(2, amount);
+		ResultSet rs = null;
+		rs = stmt.executeQuery();
+		
+		if (rs.next()) {
+			stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ?");
+	        stmt.setInt(1, amount);
+	        stmt.setInt(2, accountNumber);
+	        stmt.executeUpdate();
+	        
+	        stmt = conn.prepareStatement("UPDATE accounts SET saldo_poupanca = saldo_poupanca + ? WHERE id = ?");
+	        stmt.setInt(1, amount);
+	        stmt.setInt(2, accountNumber);
+	        stmt.executeUpdate();
+	        
+	        stmt = conn.prepareStatement("SELECT saldo_poupanca FROM accounts WHERE id = ?");
+	        stmt.setInt(1, accountNumber);
+	        rs = stmt.executeQuery();
+	        rs.next();
+	        return rs.getInt("saldo_poupanca");
+		}
+		return 0;
         
-        stmt = conn.prepareStatement("UPDATE accounts SET saldo_poupanca = saldo_poupanca + ? WHERE id = ?");
-        stmt.setInt(1, amount);
-        stmt.setInt(2, accountNumber);
-        stmt.executeUpdate();
-        
-        stmt = conn.prepareStatement("SELECT saldo_poupanca FROM accounts WHERE id = ?");
-        stmt.setInt(1, accountNumber);
-        ResultSet rs = stmt.executeQuery();
-        rs.next();
-        return rs.getInt("saldo_poupanca");
     }
     
     // Investir em Renda Fixa
     protected int investFixedIncome(int accountNumber, int amount) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ?");
-        stmt.setInt(1, amount);
-        stmt.setInt(2, accountNumber);
-        stmt.executeUpdate();
+    	PreparedStatement stmt = conn.prepareStatement("SELECT * FROM accounts WHERE id = ? AND saldo >= ?");
+		stmt.setInt(1, accountNumber);
+		stmt.setInt(2, amount);
+		ResultSet rs = null;
+		rs = stmt.executeQuery();
+		
+		if (rs.next()) {
+			stmt = conn.prepareStatement("UPDATE accounts SET saldo = saldo - ? WHERE id = ?");
+	        stmt.setInt(1, amount);
+	        stmt.setInt(2, accountNumber);
+	        stmt.executeUpdate();
+	        
+	        stmt = conn.prepareStatement("UPDATE accounts SET saldo_rendafixa = saldo_rendafixa + ? WHERE id = ?");
+	        stmt.setInt(1, amount);
+	        stmt.setInt(2, accountNumber);
+	        stmt.executeUpdate();
+	        
+	        stmt = conn.prepareStatement("SELECT saldo_rendaFixa FROM accounts WHERE id = ?");
+	        stmt.setInt(1, accountNumber);
+	        rs = stmt.executeQuery();
+	        rs.next();
+	        return rs.getInt("saldo_rendaFixa");
+		}
+    	return 0; 
         
-        stmt = conn.prepareStatement("UPDATE accounts SET saldo_rendafixa = saldo_rendafixa + ? WHERE id = ?");
-        stmt.setInt(1, amount);
-        stmt.setInt(2, accountNumber);
-        stmt.executeUpdate();
-        
-        stmt = conn.prepareStatement("SELECT saldo_rendaFixa FROM accounts WHERE id = ?");
-        stmt.setInt(1, accountNumber);
-        ResultSet rs = stmt.executeQuery();
-        rs.next();
-        return rs.getInt("saldo_rendaFixa");
     }
     
 }

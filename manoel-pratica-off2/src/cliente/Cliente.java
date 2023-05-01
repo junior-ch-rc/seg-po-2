@@ -82,8 +82,6 @@ public class Cliente {
                 	switch(opc) {
                 		case 1:
                 			//Sacar
-                			System.out.println("Digite sua conta bancária: ");
-	                		numero = reader.nextLine();
 	                		System.out.println("Digite o valor para sacar: ");
 	                		valor = reader.nextLine();
 	                		
@@ -93,8 +91,6 @@ public class Cliente {
                 			break;
                 		case 2:
                 			//Depositar
-                			System.out.println("Digite sua conta bancária: ");
-	                		numero = reader.nextLine();
 	                		System.out.println("Digite o valor para depositar: ");
 	                		valor = reader.nextLine();
 	                		
@@ -103,8 +99,6 @@ public class Cliente {
                 			break;
                 		case 3:
                 			//Transferir
-                			System.out.println("Digite sua conta bancária: ");
-	                		numero = reader.nextLine();
 	                		System.out.println("Digite a conta bancária que quer transferir: ");
 	                		String trasferTo = reader.nextLine();
 	                		System.out.println("Digite o valor para transferir: ");
@@ -115,8 +109,6 @@ public class Cliente {
                 			break;
                 		case 4:
                 			//Consultar saldo
-                			System.out.println("Digite sua conta bancária: ");
-	                		numero = reader.nextLine();
 	                		
 	                		m.setMensagem("1 4 " + numero);
 	                		m.setObjeto(null);
@@ -129,8 +121,6 @@ public class Cliente {
                 			System.out.println("0. Voltar");
                 			switch(Integer.parseInt(reader.nextLine())) {
                 				case 1:
-                					System.out.println("Digite sua conta bancária: ");
-        	                		numero = reader.nextLine();
         	                		System.out.println("Digite o valor para investir: ");
         	                		valor = reader.nextLine();
         	                		
@@ -139,8 +129,6 @@ public class Cliente {
         	                		break;
         	                		
                 				case 2:
-                					System.out.println("Digite sua conta bancária: ");
-        	                		numero = reader.nextLine();
         	                		System.out.println("Digite o valor para investir: ");
         	                		valor = reader.nextLine();
         	                		
