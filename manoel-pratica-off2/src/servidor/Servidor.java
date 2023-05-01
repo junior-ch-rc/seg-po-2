@@ -216,17 +216,17 @@ public class Servidor {
 						switch(parts[1].charAt(0)) {
 							// Sacar
 							case '1':
-								bank.withdraw(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+								resposta = bank.withdraw(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
 								break;
 								
 							//Depositar
 							case '2':
-								bank.deposit(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+								resposta = bank.deposit(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
 								break;
 								
 							//Transferir
 							case '3':
-								bank.transfer(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), Integer.parseInt(parts[4]));
+								resposta = bank.transfer(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), Integer.parseInt(parts[4]));
 								break;
 							
 							//Consultar saldo
@@ -238,13 +238,13 @@ public class Servidor {
 							//Realizar investimento poupança
 							case '5':
 								int poupanca = bank.investSavings(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
-								resposta = this.income(poupanca, 0.05f);
+								resposta = poupanca == 0 ? "Saldo insuficiente" : this.income(poupanca, 0.05f);
 								break;
 								
 							//Realizar investimento fixa
 							case '7':
 								int rendaFixa = bank.investFixedIncome(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
-								resposta = this.income(rendaFixa, 0.15f);
+								resposta = rendaFixa == 0 ? "Saldo insuficiente" : this.income(rendaFixa, 0.15f);
 								break;
 						}
 					}
