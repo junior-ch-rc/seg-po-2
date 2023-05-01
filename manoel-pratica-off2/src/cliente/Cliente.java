@@ -61,6 +61,7 @@ public class Cliente {
             System.out.println("Terminal pronto!");
 
             int opc = -1;
+            String numero = "";
             boolean autenticado = false;
             
             while (opc != 0) {
@@ -76,7 +77,6 @@ public class Cliente {
                 
                 if (autenticado) {
                 	// Swich para autenticado
-                	String numero = "";
                 	String valor = "";
                 	
                 	switch(opc) {
@@ -153,7 +153,7 @@ public class Cliente {
 	                	case 1: {
 	                		
 	                		System.out.println("Digite sua conta bancária: ");
-	                		String numero = reader.nextLine();
+	                		numero = reader.nextLine();
 	                		System.out.println("Digite a sua senha: ");
 	                		String senha = reader.nextLine();
 	                		
